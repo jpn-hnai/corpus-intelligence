@@ -1,5 +1,6 @@
-const EMBEDDINGS_SERVICE_URL =
-  process.env.EMBEDDINGS_SERVICE_URL || "http://embeddings-service:8000";
+function getEmbeddingsUrl(): string {
+  return process.env.EMBEDDINGS_SERVICE_URL || "http://embeddings-service:8000";
+}
 
 interface SearchResult {
   text: string;
@@ -74,7 +75,8 @@ async function request<T>(
   signal?: AbortSignal,
   requestId?: string
 ): Promise<T> {
-  const url = `${EMBEDDINGS_SERVICE_URL}${path}`;
+  const baseUrl = getEmbeddingsUrl();
+  const url = `${baseUrl}${path}`;
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (requestId) {
     headers["x-request-id"] = requestId;
@@ -96,7 +98,7 @@ async function request<T>(
       throw err;
     }
     throw new Error(
-      `Embeddings service unavailable at ${EMBEDDINGS_SERVICE_URL}. Is docker compose up running?`
+      `Embeddings service unavailable at ${baseUrl}. Is docker compose up running?`
     );
   }
 

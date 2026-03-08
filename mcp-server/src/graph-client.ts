@@ -1,5 +1,6 @@
-const GRAPH_SERVICE_URL =
-  process.env.GRAPH_SERVICE_URL || "http://graph-service:8001";
+function getGraphUrl(): string {
+  return process.env.GRAPH_SERVICE_URL || "http://graph-service:8001";
+}
 
 async function graphRequest<T>(
   method: string,
@@ -8,7 +9,8 @@ async function graphRequest<T>(
   signal?: AbortSignal,
   requestId?: string
 ): Promise<T> {
-  const url = `${GRAPH_SERVICE_URL}${path}`;
+  const baseUrl = getGraphUrl();
+  const url = `${baseUrl}${path}`;
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (requestId) {
     headers["x-request-id"] = requestId;
@@ -30,7 +32,7 @@ async function graphRequest<T>(
       throw err;
     }
     throw new Error(
-      `Graph service unavailable at ${GRAPH_SERVICE_URL}. Is docker compose up running?`
+      `Graph service unavailable at ${baseUrl}. Is docker compose up running?`
     );
   }
 

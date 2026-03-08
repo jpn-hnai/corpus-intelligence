@@ -1,5 +1,6 @@
-const ANALYSIS_SERVICE_URL =
-  process.env.ANALYSIS_SERVICE_URL || "http://analysis-service:8002";
+function getAnalysisUrl(): string {
+  return process.env.ANALYSIS_SERVICE_URL || "http://analysis-service:8002";
+}
 
 export interface AnalysisVersion {
   schema_version: string;
@@ -160,7 +161,8 @@ async function analysisRequest<T>(
   signal?: AbortSignal,
   requestId?: string
 ): Promise<T> {
-  const url = `${ANALYSIS_SERVICE_URL}${path}`;
+  const baseUrl = getAnalysisUrl();
+  const url = `${baseUrl}${path}`;
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (requestId) {
     headers["x-request-id"] = requestId;
@@ -182,7 +184,7 @@ async function analysisRequest<T>(
       throw err;
     }
     throw new Error(
-      `Analysis service unavailable at ${ANALYSIS_SERVICE_URL}. Is docker compose up running?`
+      `Analysis service unavailable at ${baseUrl}. Is docker compose up running?`
     );
   }
 
@@ -281,7 +283,7 @@ export async function getEntrySummary(
   signal?: AbortSignal,
   requestId?: string
 ): Promise<EntrySummaryRecord | null> {
-  const url = `${ANALYSIS_SERVICE_URL}/entry-summary/${encodeURIComponent(entryId)}`;
+  const url = `${getAnalysisUrl()}/entry-summary/${encodeURIComponent(entryId)}`;
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (requestId) {
     headers["x-request-id"] = requestId;
