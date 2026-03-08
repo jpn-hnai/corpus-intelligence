@@ -1,11 +1,11 @@
 {
   "name": "corpus-intelligence",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Install and manage the corpus-intelligence personal knowledge system",
   "type": "module",
   "bin": {
-    "corpus-intelligence": "./dist/install.js",
-    "corpus": "./dist/ingest.js"
+    "corpus-intelligence": "dist/install.js",
+    "corpus": "dist/ingest.js"
   },
   "files": [
     "dist"
