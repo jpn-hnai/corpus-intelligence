@@ -27,6 +27,12 @@ import {
 import { randomUUID } from "node:crypto";
 import { getLastTrace } from "./request-trace.js";
 
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { registerTools } from "./tools.js";
+import { registerTimeSeriesTools } from "./timeseries/tools.js";
+import { registerGravityTools } from "./gravity/tools.js";
+
 const app = express();
 const PORT = 3001;
 
@@ -451,6 +457,49 @@ app.get("/debug/last-query", (_req, res) => {
     return;
   }
   res.json(trace);
+});
+
+// ---------------------------------------------------------------------------
+// MCP over SSE — allows Claude Desktop to connect via URL
+// ---------------------------------------------------------------------------
+
+function createMcpServer(): McpServer {
+  const server = new McpServer({ name: "corpus-intelligence", version: "1.0.0" });
+  const gravityMode = process.env.GRAVITY_MODE !== "0";
+  if (gravityMode) {
+    registerGravityTools(server);
+    registerTools(server, { only: ["get_entry_analysis", "get_entries_by_date", "get_recent_entries"] });
+  } else {
+    registerTools(server);
+    registerTimeSeriesTools(server);
+    registerGravityTools(server);
+  }
+  return server;
+}
+
+const sseTransports = new Map<string, SSEServerTransport>();
+
+app.get("/sse", async (_req, res) => {
+  const transport = new SSEServerTransport("/messages", res);
+  const sessionId = transport.sessionId;
+  sseTransports.set(sessionId, transport);
+
+  res.on("close", () => {
+    sseTransports.delete(sessionId);
+  });
+
+  const server = createMcpServer();
+  await server.connect(transport);
+});
+
+app.post("/messages", async (req, res) => {
+  const sessionId = req.query.sessionId as string;
+  const transport = sseTransports.get(sessionId);
+  if (!transport) {
+    res.status(400).json({ error: "Unknown session" });
+    return;
+  }
+  await transport.handlePostMessage(req, res);
 });
 
 app.listen(PORT, "0.0.0.0", () => {

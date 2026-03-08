@@ -1,0 +1,36 @@
+{
+  "name": "corpus-intelligence",
+  "version": "0.1.0",
+  "description": "Install and manage the corpus-intelligence personal knowledge system",
+  "type": "module",
+  "bin": {
+    "corpus-intelligence": "./dist/install.js",
+    "corpus": "./dist/ingest.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start:install": "node dist/install.js",
+    "start:ingest": "node dist/ingest.js"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "ora": "^8.0.0",
+    "cli-progress": "^3.12.0",
+    "figlet": "^1.7.0",
+    "boxen": "^7.1.0",
+    "execa": "^9.0.0",
+    "@inquirer/prompts": "^7.0.0",
+    "conf": "^13.0.0",
+    "get-port": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/cli-progress": "^3.11.5",
+    "@types/figlet": "^1.7.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
