@@ -18,13 +18,15 @@ cd corpus-intelligence
 
 The installer walks you through authentication, environment setup, Docker image building, service startup, and Claude Desktop configuration — all interactively.
 
-### Option B: npm (coming soon)
+### Option B: npm
 
 ```bash
 npx corpus-intelligence
 ```
 
 ### After setup: ingest your corpus
+
+The installer prompts you for your corpus path (a directory of `.md` files) and saves it to `.env`. Once configured, just run:
 
 ```bash
 corpus
@@ -270,9 +272,9 @@ python scripts/normalize_filenames.py
 - CLI installer (`./setup.sh` / `npx corpus-intelligence`)
 - SSE transport for Claude Desktop (URL-based config)
 - Corpus filename normalizer
+- npm publish (`npx corpus-intelligence`)
 
 ### Next
-- npm publish for `npx corpus-intelligence`
 - Docker image registry (GHCR) for faster setup
 - Subscription auth (Claude Pro/Max/Team via OAuth)
 - Gravity model benchmarking against manually-evaluated query sets
