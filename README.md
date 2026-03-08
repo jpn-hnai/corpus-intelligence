@@ -1,60 +1,69 @@
-# Corpus Intelligence
-
-**Turn any corpus of unstructured writing into a queryable intelligence system with psychological profiling, knowledge graphs, and gravity-based semantic orchestration.**
-
-Corpus Intelligence transforms personal writing, journal entries, or any body of unstructured text into a multi-engine knowledge system — searchable by meaning, traversable by relationship, and profiled across 8 psychological dimensions. Built and battle-tested on a 1.5M-word personal writing corpus spanning 6 years.
-
-The system exposes 22 specialized tools via MCP (Model Context Protocol), orchestrated by the **Gravity Model** — a semantic activation framework where queries decompose into typed fragments that exert gravitational pull on tools proportionally to their relevance.
-
-## Quick Start
-
-### Option A: Clone and run
-
-```bash
-git clone https://github.com/jpn-hnai/corpus-intelligence.git
-cd corpus-intelligence
-./setup.sh
+```
+ ██████╗ ██████╗ ██████╗ ██████╗ ██╗   ██╗███████╗
+██╔════╝██╔═══██╗██╔══██╗██╔══██╗██║   ██║██╔════╝
+██║     ██║   ██║██████╔╝██████╔╝██║   ██║███████╗
+██║     ██║   ██║██╔══██╗██╔═══╝ ██║   ██║╚════██║
+╚██████╗╚██████╔╝██║  ██║██║     ╚██████╔╝███████║
+ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝      ╚═════╝ ╚══════╝
+ private intelligence for your writing
 ```
 
-The installer walks you through authentication, environment setup, Docker image building, service startup, and Claude Desktop configuration — all interactively.
+Turn any corpus of unstructured writing into a queryable intelligence system with psychological profiling, knowledge graphs, and gravity-based semantic orchestration.
 
-### Option B: npm
+Built and battle-tested on a 1.5M-word personal writing corpus spanning 6 years. 22 specialized tools via MCP, orchestrated by a semantic activation framework where queries decompose into typed fragments that exert gravitational pull on tools proportionally to their relevance.
 
-```bash
-npx corpus-intelligence
-```
+---
 
-### After setup: ingest your corpus
-
-The installer prompts you for your corpus path (a directory of `.md` files) and saves it to `.env`. Once configured, just run:
+## quick start
 
 ```bash
-corpus
+$ npx corpus-intelligence
 ```
 
-This runs all 5 ingestion pipelines (vector embeddings, knowledge graph, psychological profiling, graph enrichment, timeseries backfill) with progress bars and a completion summary.
+Or clone and run:
 
-## Requirements
+```bash
+$ git clone https://github.com/jpn-hnai/corpus-intelligence.git
+$ cd corpus-intelligence
+$ ./setup.sh
+```
 
-- **Docker Desktop** (v20+)
-- **Node.js 18+** (for the CLI)
-- 4GB RAM minimum, **8GB+ recommended**
-- ~8GB disk for images + data
-- **One of:**
-  - `ANTHROPIC_API_KEY` (recommended — uses Claude Haiku for analysis, ~$0.25/1M input tokens)
-  - [Ollama](https://ollama.com) installed locally (free, no API key)
+The installer walks you through auth, environment, Docker builds, service startup, and Claude Desktop configuration.
 
-## Architecture
+### ingest your corpus
+
+```bash
+$ corpus
+```
+
+Runs all 5 ingestion pipelines with progress bars and a completion summary.
+
+---
+
+## requirements
+
+```
+docker desktop    v20+
+node.js           18+
+ram               4GB min, 8GB+ recommended
+disk              ~8GB for images + data
+llm               anthropic api key (recommended, ~$0.25/1M tokens)
+                  — or ollama installed locally (free)
+```
+
+---
+
+## architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Claude Desktop / MCP Client                                │
-│  ↕ SSE (http://127.0.0.1:3001/sse)                         │
+│  claude desktop / mcp client                                │
+│  ↕ sse (http://127.0.0.1:3001/sse)                          │
 ├─────────────────────────────────────────────────────────────┤
-│  mcp-server (TypeScript)         port 3001                  │
+│  mcp-server          typescript    :3001                    │
 │  22 tools + gravity orchestrator + timeseries               │
 ├──────────┬──────────┬──────────┬───────────────────────────┤
-│ ChromaDB │  Neo4j   │ SQLite   │  DuckDB                   │
+│ chromadb │  neo4j   │  sqlite  │  duckdb                   │
 │ vectors  │  graph   │ analysis │  timeseries               │
 ├──────────┼──────────┼──────────┼───────────────────────────┤
 │embeddings│  graph   │ analysis │                            │
@@ -63,26 +72,50 @@ This runs all 5 ingestion pipelines (vector embeddings, knowledge graph, psychol
 └──────────┴──────────┴──────────┴───────────────────────────┘
 ```
 
-| Service | Stack | Purpose |
-|---------|-------|---------|
-| **mcp-server** | TypeScript, Express | MCP tools + gravity orchestrator + HTTP API |
-| **embeddings-service** | Python, FastAPI, ChromaDB | Sentence-transformers embeddings + vector search |
-| **graph-service** | Python, FastAPI, Neo4j | spaCy NER + knowledge graph + GraphRAG |
-| **analysis-service** | Python, FastAPI, SQLite | LLM-backed summarization + 8-D psychological profiling |
-| **neo4j** | Neo4j 5 Community | Graph database |
-| **web-ui** | React, Vite, nginx | Chat interface at localhost:3000 |
+```
+service              stack                     purpose
+─────────────────────────────────────────────────────────────────
+mcp-server           typescript, express       mcp tools + gravity orchestrator
+embeddings-service   python, fastapi, chromadb sentence-transformers + vector search
+graph-service        python, fastapi, neo4j    spacy ner + knowledge graph + graphrag
+analysis-service     python, fastapi, sqlite   llm summarization + 8-d psych profiling
+neo4j                neo4j 5 community         graph database
+web-ui               react, vite, nginx        chat interface at localhost:3000
+```
 
-## What Makes This Different
+---
 
-- **Gravity-based orchestration**: Queries decompose into semantic fragments (concept, entity, temporal, emotional, relational, archetypal). Each fragment pulls on 22 tool identity vectors via cosine similarity. One tool call (`orchestrated_query`) replaces manual tool selection.
-- **8-dimensional psychological profiling**: Every entry is scored across valence, activation, agency, certainty, relational openness, self-trust, time orientation, and integration.
-- **Four storage engines in concert**: Vector search (ChromaDB) + graph search (Neo4j) + LLM analysis (Claude/Ollama) + time series (DuckDB).
-- **Domain-agnostic**: The same pattern works for personal writing, legal archives, medical records, or any corpus of unstructured text.
-- **Fully local option**: Runs entirely on local infrastructure. Fine-tuned neural models for psychological profiling and theme classification ($0, no API). Ollama or Anthropic API optional for summaries.
+## what makes this different
 
-## Claude Desktop Integration
+```
+→ gravity-based orchestration     queries decompose into semantic fragments.
+                                  each fragment pulls on 22 tool identity
+                                  vectors via cosine similarity. one call
+                                  (orchestrated_query) replaces manual
+                                  tool selection.
 
-The installer auto-configures Claude Desktop. If you need to set it up manually, add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+→ 8-d psychological profiling     every entry scored across valence,
+                                  activation, agency, certainty, relational
+                                  openness, self-trust, time orientation,
+                                  and integration.
+
+→ four storage engines            vector search (chromadb) + graph (neo4j) +
+                                  llm analysis (claude/ollama) + timeseries
+                                  (duckdb) — working in concert.
+
+→ fully local option              runs entirely on local infrastructure.
+                                  fine-tuned neural models for profiling
+                                  and theme classification ($0, no api).
+
+→ domain-agnostic                 works for journals, legal archives,
+                                  medical records, or any unstructured text.
+```
+
+---
+
+## claude desktop
+
+The installer auto-configures Claude Desktop. For manual setup:
 
 ```json
 {
@@ -96,202 +129,212 @@ The installer auto-configures Claude Desktop. If you need to set it up manually,
 
 In gravity mode (default), Claude sees 4 tools:
 
-| Tool | Purpose |
-|------|---------|
-| `orchestrated_query` | Multi-tool gravity dispatch |
-| `get_entry_analysis` | Deep dive on specific entries |
-| `get_entries_by_date` | Date-range retrieval |
-| `get_recent_entries` | Recent entries |
+```
+tool                     purpose
+────────────────────────────────────────────────────
+orchestrated_query       multi-tool gravity dispatch
+get_entry_analysis       deep dive on specific entries
+get_entries_by_date      date-range retrieval
+get_recent_entries       recent entries
+```
 
 Set `GRAVITY_MODE=0` in `.env` to expose all 23 tools individually.
 
-## Ingestion Pipelines
+---
 
-The `corpus` command runs these sequentially:
+## example questions
 
-| Pipeline | Profile | What it does |
-|----------|---------|-------------|
-| Vector Embeddings | `ingest` | Chunks text, generates embeddings, indexes in ChromaDB |
-| Knowledge Graph | `graph-ingest` | spaCy NER, builds nodes + relationships in Neo4j |
-| Entry Analysis | `batch-analysis` | LLM summarization + 8-D psychological profiling per entry |
-| Graph Enrichment | `graph-enrich` | Wires analysis data (themes, entities, state scores) into Neo4j |
-| Timeseries Backfill | `backfill-timeseries` | Populates DuckDB metrics for quantitative analysis |
-
-To run individual pipelines manually:
-
-```bash
-docker compose --profile ingest run --rm ingest
-docker compose --profile graph-ingest run --rm graph-ingest
-docker compose --profile batch-analysis run --rm batch-analysis --provider finetuned --skip-done --workers 4
-docker compose --profile graph-enrich run --rm graph-enrich
-docker compose --profile backfill-timeseries run --rm backfill-timeseries
+```
+"how has my thinking about stillness evolved this year?"
+"what concepts are connected to recovery in my writing?"
+"compare my emotional landscape in q1 vs q2"
+"what decisions have i recorded and what emotions surrounded them?"
+"what people are most associated with themes of growth?"
 ```
 
-## Example Questions
+---
 
-- "How has my thinking about stillness evolved this year?"
-- "What concepts are connected to recovery in my writing?"
-- "Compare my emotional landscape in Q1 vs Q2"
-- "What decisions have I recorded and what emotions surrounded them?"
-- "What people are most associated with themes of growth?"
+## gravity orchestration
 
-## Gravity Orchestration
+Instead of manually selecting from 22 tools, call `orchestrated_query` with a natural language question:
 
-Instead of Claude manually selecting from 22 tools, it calls `orchestrated_query` with a natural language question. The system then:
+```
+1. decompose    query → typed semantic fragments
+                (concept, entity, temporal, emotional, relational, archetypal)
+                91% resolve via rule-based decomposition ($0)
 
-1. **Decomposes** the query into typed semantic fragments (concept, entity, temporal, emotional, relational, archetypal) — 91% of queries resolve via rule-based decomposition ($0), with Claude fallback for ambiguous queries only
-2. **Embeds** each fragment + the full query via the embeddings service
-3. **Computes a gravity field** — cosine similarity between fragment vectors and 22 tool identity vectors
-4. **Activates tools** via adaptive gap detection (finds the natural elbow in sorted scores)
-5. **Dispatches** all activated tools in parallel with per-tool timeouts
-6. **Assembles** results ranked by composite score for Claude to synthesize
+2. embed        each fragment + full query via embeddings service
 
-## Available Tools (22 + 1 orchestrator)
+3. gravity      cosine similarity between fragment vectors
+                and 22 tool identity vectors
 
-| Tool | Category | Description |
-|------|----------|-------------|
-| `orchestrated_query` | Orchestrator | Automatic multi-tool dispatch via semantic gravity |
-| `search_writings` | Search | Semantic search — finds passages similar in meaning |
-| `search_by_keyword` | Search | Exact text search with surrounding context |
-| `get_entries_by_date` | Search | Retrieve entries within a date range |
-| `get_recent_entries` | Search | Get the N most recent entries |
-| `find_recurring_themes` | Pattern | Trace how a topic evolves over time |
-| `get_writing_stats` | Meta | Corpus statistics |
-| `get_entry_analysis` | Analysis | Per-entry summary, themes, entities, 8-D state profile |
-| `find_connected_concepts` | Graph | Concepts, people, emotions connected to a concept |
-| `trace_concept_evolution` | Graph | Concept appearances over time |
-| `get_concept_flows` | Graph | Directed transition flows (X → Y) |
-| `find_entity_relationships` | Graph | Person's presence across the corpus |
-| `compare_periods` | Graph | Compare two time periods |
-| `get_decision_context` | Graph | Decisions and their emotional context |
-| `get_archetype_patterns` | Graph | Archetypal patterns (Warrior, Sage, Creator, etc.) |
-| `search_themes` | Graph | Entries linked to a theme |
-| `search_by_state` | Graph | Filter by psychological state dimension |
-| `temporal_filter` | Quantitative | Filter entries by metric thresholds |
-| `query_time_series` | Quantitative | Plot any metric over time |
-| `detect_anomalies` | Quantitative | Flag outlier entries via z-score |
-| `correlate_metrics` | Quantitative | Pearson correlation between metrics |
-| `get_metric_summary` | Quantitative | Summary stats for a metric |
-| `list_available_metrics` | Meta | Discover all queryable metrics |
+4. activate     adaptive gap detection finds the natural elbow
+                in sorted scores
 
-## Knowledge Graph Schema
+5. dispatch     all activated tools run in parallel
+                with per-tool timeouts
 
-**Nodes:** Entry, Person, Place, Concept, Emotion, Decision, Archetype, Theme, Organization, Spiritual
+6. assemble     results ranked by composite score
+                for claude to synthesize
+```
 
-**Relationships:** MENTIONS, CONTAINS, HAS_THEME, EXPRESSES, RECORDS, INVOKES, COOCCURS_WITH, THEME_COOCCURS, FLOWS_TO
+---
 
-## Manual Setup
+## all tools
+
+```
+tool                          category        description
+──────────────────────────────────────────────────────────────────────────
+orchestrated_query            orchestrator    automatic multi-tool dispatch
+search_writings               search          semantic search by meaning
+search_by_keyword             search          exact text search with context
+get_entries_by_date           search          entries within a date range
+get_recent_entries            search          n most recent entries
+find_recurring_themes         pattern         trace topic evolution over time
+get_writing_stats             meta            corpus statistics
+get_entry_analysis            analysis        summary + themes + 8-d state
+find_connected_concepts       graph           concepts/people/emotions linked
+trace_concept_evolution       graph           concept appearances over time
+get_concept_flows             graph           directed transition flows
+find_entity_relationships     graph           person's presence across corpus
+compare_periods               graph           compare two time periods
+get_decision_context          graph           decisions + emotional context
+get_archetype_patterns        graph           warrior, sage, creator, etc.
+search_themes                 graph           entries linked to a theme
+search_by_state               graph           filter by psych dimension
+temporal_filter               quantitative    filter by metric thresholds
+query_time_series             quantitative    plot any metric over time
+detect_anomalies              quantitative    flag outliers via z-score
+correlate_metrics             quantitative    pearson correlation
+get_metric_summary            quantitative    summary stats for a metric
+list_available_metrics        meta            discover all queryable metrics
+```
+
+---
+
+## analysis layer
+
+```
+provider       summary          state labels       themes             cost
+───────────────────────────────────────────────────────────────────────────
+anthropic      claude api       claude api         claude api         ~$10/corpus
+hybrid         claude api       finetuned neural   finetuned neural   ~$3/corpus
+finetuned      (default)        finetuned neural   finetuned neural   $0
+local          rule-based       finetuned neural*  finetuned neural*  $0
+ollama         ollama llm       ollama llm         ollama llm         $0 (local gpu)
+```
+
+*Falls back to rule-based when finetuned weights unavailable.
+
+Auto-resolution prefers `hybrid > anthropic > finetuned > local` based on available API keys and model weights.
+
+The **finetuned state classifier** is a sentence-transformer fine-tuned on Claude-labeled data with a regression head. 8-dimension psychological state scores at ~100ms/entry on CPU. MAE=0.169, Pearson r=0.662 vs Claude on held-out test data.
+
+The **finetuned theme classifier** uses the same encoder with a multi-label head. 5,500+ unique themes clustered into 10 canonical labels. Macro F1=0.286 at ~300ms/entry on CPU.
+
+Each entry receives:
+
+```
+→ short + detailed summaries
+→ typed entities (person, place, organization, concept, spiritual)
+→ 3-8 abstract themes
+→ decisions and commitments
+→ 8-d psychological state profile
+```
+
+---
+
+## knowledge graph
+
+```
+nodes          Entry, Person, Place, Concept, Emotion, Decision,
+               Archetype, Theme, Organization, Spiritual
+
+relationships  MENTIONS, CONTAINS, HAS_THEME, EXPRESSES, RECORDS,
+               INVOKES, COOCCURS_WITH, THEME_COOCCURS, FLOWS_TO
+```
+
+---
+
+## dev engine
+
+For local development (no web-ui or ingestion — just the engines you need):
+
+```bash
+$ ./dev.sh              # start engines with fade-in banner
+$ ./dev.sh status       # check engine health
+$ ./dev.sh stop         # shut down
+$ ./dev.sh restart      # cycle engines
+$ ./dev.sh logs         # tail docker logs
+```
+
+---
+
+## manual setup
 
 <details>
-<summary>If you prefer manual Docker Compose commands instead of the CLI</summary>
-
-### 1. Configure environment
+<summary>docker compose commands instead of the cli</summary>
 
 ```bash
-cp .env.example .env
-# Edit .env: set CORPUS_PATH, NEO4J_PASSWORD, optionally ANTHROPIC_API_KEY
-```
+# configure
+$ cp .env.example .env
+$ vim .env                # set CORPUS_PATH, NEO4J_PASSWORD, ANTHROPIC_API_KEY
 
-### 2. Build and start
+# build and start
+$ docker compose build
+$ ./start.sh
 
-```bash
-docker compose build
-./start.sh
-```
+# ingest
+$ docker compose --profile ingest run --rm ingest
+$ docker compose --profile graph-ingest run --rm graph-ingest
+$ docker compose --profile batch-analysis run --rm batch-analysis --provider finetuned --skip-done --workers 4
+$ docker compose --profile graph-enrich run --rm graph-enrich
+$ docker compose --profile backfill-timeseries run --rm backfill-timeseries
 
-### 3. Ingest your corpus
-
-```bash
-docker compose --profile ingest run --rm ingest
-docker compose --profile graph-ingest run --rm graph-ingest
-docker compose --profile batch-analysis run --rm batch-analysis --provider finetuned --skip-done --workers 4
-docker compose --profile graph-enrich run --rm graph-enrich
-docker compose --profile backfill-timeseries run --rm backfill-timeseries
-```
-
-### Common operations
-
-```bash
-./start.sh status    # Service health
-./start.sh logs      # Tail logs
-./start.sh down      # Stop everything
-./start.sh restart   # Stop + start
+# operate
+$ ./start.sh status      # service health
+$ ./start.sh logs        # tail logs
+$ ./start.sh down        # stop everything
 ```
 
 </details>
 
-## Analysis Layer
+---
 
-The `analysis-service` provides per-entry analysis with a tiered provider system:
-
-| Provider | Summary | State Labels | Themes | Cost | Quality |
-|----------|---------|-------------|--------|------|---------|
-| `anthropic` | Claude API | Claude API | Claude API | ~$10/corpus | Gold standard |
-| `hybrid` | Claude API | Finetuned neural | Finetuned neural | ~$3/corpus | Best value |
-| `finetuned` | (uses default) | Finetuned neural | Finetuned neural | $0 | 90% match to Claude |
-| `local` | Rule-based extraction | Finetuned neural* | Finetuned neural* | $0 | Baseline summaries, good state + themes |
-| `ollama` | Ollama LLM | Ollama LLM | Ollama LLM | $0 (local GPU) | Good |
-
-*Falls back to rule-based engine when finetuned model weights are not available.
-
-The **finetuned state classifier** is a sentence-transformer (all-mpnet-base-v2) fine-tuned on Claude-labeled data with a regression head, producing 8-dimension psychological state scores at ~100ms per entry on CPU. Trained with 5-fold cross-validation on ~1,400 entries; achieves MAE=0.169 and Pearson r=0.662 vs Claude on held-out test data.
-
-The **finetuned theme classifier** uses the same base encoder with a multi-label classification head. Claude's 5,500+ unique theme strings are clustered via embedding-based agglomerative clustering into 10 canonical labels, then trained with BCEWithLogitsLoss. Achieves macro F1=0.286 on held-out test data at ~300ms per entry on CPU.
-
-**Auto-resolution** prefers `hybrid > anthropic > finetuned > local` based on available API keys and model weights.
-
-Each entry receives:
-- Short + detailed summaries
-- Typed entities (person, place, organization, concept, spiritual)
-- 3-8 abstract themes
-- Decisions and commitments
-- 8-dimension psychological state profile (valence, activation, agency, certainty, relational openness, self-trust, time orientation, integration)
-
-## GraphRAG Mode
-
-Toggle **GraphRAG** in the web UI header. When enabled, your query triggers both vector search and graph traversal in parallel, giving Claude enriched context with structural relationships.
-
-## Personal Style Tuning
-
-Graph extraction is tunable through:
-
-- `graph-service/config/style_profile.json` — custom emotion/archetype keywords, concept boosting
-- `graph-service/config/entity_aliases.json` — nickname normalization, shorthand mapping
-
-Feedback-based reranking is built into the web UI — upvote/downvote graph results to tune future retrieval.
-
-## Quality Checks
+## quality checks
 
 ```bash
-cd mcp-server && npm run check    # TypeScript lint + tests
-cd web-ui && npm run check        # React build check
-cd embeddings-service && pytest -q # Python unit tests
+$ cd mcp-server && npm run check          # typescript lint + tests
+$ cd web-ui && npm run check              # react build check
+$ cd embeddings-service && pytest -q      # python unit tests
 ```
-
-## Roadmap
-
-### Done
-- Open source release with full architecture
-- CLI installer (`./setup.sh` / `npx corpus-intelligence`)
-- SSE transport for Claude Desktop (URL-based config)
-- npm publish (`npx corpus-intelligence`)
-- Fine-tuned state classifier (neural model trained on Claude labels, $0 inference)
-- Fine-tuned theme classifier (multi-label, 10 canonical themes from 5,500+ Claude labels, $0 inference)
-- Hybrid rule-based query decomposition (91% local, Claude fallback)
-
-### Next
-- Web UI overhaul
-- Docker image registry (GHCR) for faster setup
-- Gravity model benchmarking against manually-evaluated query sets
-
-### Later
-- Multi-corpus federation
-- Predictive psychological vulnerability forecasting
-- Voice and real-time input
-- Clinical and recovery applications
 
 ---
 
-*Built in Oklahoma City by Jer Nguyen*
+## roadmap
 
-*[LinkedIn](https://www.linkedin.com/in/jerrypn/) · [jerry@hewesnguyen.com](mailto:jerry@hewesnguyen.com)*
+```
+done     open source release with full architecture
+         cli installer (./setup.sh / npx corpus-intelligence)
+         sse transport for claude desktop
+         npm publish (npx corpus-intelligence)
+         finetuned state classifier ($0 inference)
+         finetuned theme classifier (10 canonical themes, $0)
+         hybrid rule-based decomposition (91% local)
+
+next     web ui overhaul
+         docker image registry (ghcr)
+         gravity model benchmarking
+
+later    multi-corpus federation
+         predictive psychological vulnerability forecasting
+         voice and real-time input
+         clinical and recovery applications
+```
+
+---
+
+```
+built in oklahoma city by jer nguyen
+linkedin.com/in/jerrypn · jerry@hewesnguyen.com
+```
