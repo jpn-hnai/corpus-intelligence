@@ -66,6 +66,17 @@ def parse_date_from_content(text: str) -> str | None:
     return None
 
 
+def parse_date_from_birthtime(file_path: Path) -> str | None:
+    """Try to extract a date from the file's creation time (birthtime)."""
+    try:
+        stat = file_path.stat()
+        # st_birthtime on macOS, fall back to st_mtime
+        ts = getattr(stat, "st_birthtime", None) or stat.st_mtime
+        return datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
+    except (OSError, ValueError):
+        return None
+
+
 def discover_files(corpus_path: str) -> list[Path]:
     """Find all .md files in the corpus directory."""
     root = Path(corpus_path)

@@ -4,6 +4,7 @@ from .file_discovery import (
     compute_file_hash,
     dedupe_files_by_filename,
     discover_files,
+    parse_date_from_birthtime,
     parse_date_from_content,
     parse_date_from_filename,
 )
@@ -16,6 +17,7 @@ __all__ = [
     "compute_file_hash",
     "dedupe_files_by_filename",
     "discover_files",
+    "parse_date_from_birthtime",
     "parse_date_from_content",
     "parse_date_from_filename",
     "strip_markdown",

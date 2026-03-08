@@ -256,22 +256,12 @@ cd web-ui && npm run check        # React build check
 cd embeddings-service && pytest -q # Python unit tests
 ```
 
-## Utilities
-
-**Filename normalizer** — rename non-conforming corpus files to `M-D-YYYY [Title].md`:
-
-```bash
-python scripts/normalize_filenames.py --dry-run
-python scripts/normalize_filenames.py
-```
-
 ## Roadmap
 
 ### Done
 - Open source release with full architecture
 - CLI installer (`./setup.sh` / `npx corpus-intelligence`)
 - SSE transport for Claude Desktop (URL-based config)
-- Corpus filename normalizer
 - npm publish (`npx corpus-intelligence`)
 
 ### Next

@@ -35,6 +35,7 @@ from app.corpus_utils import (
     compute_file_hash,
     dedupe_files_by_filename,
     discover_files,
+    parse_date_from_birthtime,
     parse_date_from_content,
     parse_date_from_filename,
     strip_markdown,
@@ -67,6 +68,8 @@ def _process_file(file_path: Path, batch_size: int, collection,
     date_str = parse_date_from_filename(file_path.name)
     if date_str is None:
         date_str = parse_date_from_content(text)
+    if date_str is None:
+        date_str = parse_date_from_birthtime(file_path)
     if date_str is None:
         date_str = "unknown"
 

@@ -17,6 +17,7 @@ from .corpus_utils import (
     compute_file_hash,
     dedupe_files_by_filename,
     discover_files,
+    parse_date_from_birthtime,
     parse_date_from_content,
     parse_date_from_filename,
     IngestManifest,
@@ -57,6 +58,7 @@ def _process_entry(filepath: Path) -> bool:
     date = (
         parse_date_from_filename(filename)
         or parse_date_from_content(text)
+        or parse_date_from_birthtime(filepath)
         or "unknown"
     )
     title = get_title_from_filename(filename)

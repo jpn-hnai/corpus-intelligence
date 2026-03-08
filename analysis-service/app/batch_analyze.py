@@ -21,6 +21,7 @@ from .corpus_utils import (
     chunk_text,
     dedupe_files_by_filename,
     discover_files,
+    parse_date_from_birthtime,
     parse_date_from_content,
     parse_date_from_filename,
     strip_markdown,
@@ -111,6 +112,8 @@ def _prepare_entry(file_path: Path, full: bool, service, skip_done: bool = False
     date_str = parse_date_from_filename(file_path.name)
     if date_str is None:
         date_str = parse_date_from_content(text)
+    if date_str is None:
+        date_str = parse_date_from_birthtime(file_path)
 
     plain_text = strip_markdown(text)
     if not plain_text.strip():
