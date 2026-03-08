@@ -78,7 +78,7 @@ This runs all 5 ingestion pipelines (vector embeddings, knowledge graph, psychol
 - **8-dimensional psychological profiling**: Every entry is scored across valence, activation, agency, certainty, relational openness, self-trust, time orientation, and integration.
 - **Four storage engines in concert**: Vector search (ChromaDB) + graph search (Neo4j) + LLM analysis (Claude/Ollama) + time series (DuckDB).
 - **Domain-agnostic**: The same pattern works for personal writing, legal archives, medical records, or any corpus of unstructured text.
-- **Fully local option**: Runs entirely on local infrastructure with Ollama. Anthropic API is optional.
+- **Fully local option**: Runs entirely on local infrastructure. Fine-tuned neural model for psychological profiling ($0, no API). Ollama or Anthropic API optional for summaries.
 
 ## Claude Desktop Integration
 
@@ -122,7 +122,7 @@ To run individual pipelines manually:
 ```bash
 docker compose --profile ingest run --rm ingest
 docker compose --profile graph-ingest run --rm graph-ingest
-docker compose --profile batch-analysis run --rm batch-analysis --provider anthropic --workers 5
+docker compose --profile batch-analysis run --rm batch-analysis --provider finetuned --skip-done --workers 4
 docker compose --profile graph-enrich run --rm graph-enrich
 docker compose --profile backfill-timeseries run --rm backfill-timeseries
 ```
@@ -204,7 +204,7 @@ docker compose build
 ```bash
 docker compose --profile ingest run --rm ingest
 docker compose --profile graph-ingest run --rm graph-ingest
-docker compose --profile batch-analysis run --rm batch-analysis --provider anthropic --workers 5
+docker compose --profile batch-analysis run --rm batch-analysis --provider finetuned --skip-done --workers 4
 docker compose --profile graph-enrich run --rm graph-enrich
 docker compose --profile backfill-timeseries run --rm backfill-timeseries
 ```
@@ -222,18 +222,26 @@ docker compose --profile backfill-timeseries run --rm backfill-timeseries
 
 ## Analysis Layer
 
-The `analysis-service` provides LLM-backed per-entry analysis with dual-provider support:
+The `analysis-service` provides per-entry analysis with a tiered provider system:
 
-- **Anthropic Claude** (preferred): Single API call per entry. Model: `claude-haiku-4-5-20251001`.
-- **Ollama** (fallback): Chunk-and-merge for entries >1500 words. Model: `llama3.1:8b`.
-- **Auto-resolution**: Claude is used when `ANTHROPIC_API_KEY` is set, otherwise Ollama.
+| Provider | Summary | State Labels | Cost | Quality |
+|----------|---------|-------------|------|---------|
+| `anthropic` | Claude API | Claude API | ~$10/corpus | Gold standard |
+| `hybrid` | Claude API | Local rules | ~$3/corpus | Best value |
+| `finetuned` | (uses default) | Neural model | $0 | 90% match to Claude |
+| `local` | Rule-based extraction | Rule-based engine | $0 | Baseline |
+| `ollama` | Ollama LLM | Ollama LLM | $0 (local GPU) | Good |
+
+The **finetuned** state classifier is a sentence-transformer (all-mpnet-base-v2) fine-tuned on Claude-labeled data with a regression head, producing 8-dimension psychological state scores at ~100ms per entry on CPU. Trained with 5-fold cross-validation on ~1,400 entries; achieves MAE=0.169 and Pearson r=0.662 vs Claude on held-out test data.
+
+**Auto-resolution** prefers `hybrid > anthropic > finetuned > local` based on available API keys and model weights.
 
 Each entry receives:
 - Short + detailed summaries
 - Typed entities (person, place, organization, concept, spiritual)
 - 3-8 abstract themes
 - Decisions and commitments
-- 8-dimension psychological state profile
+- 8-dimension psychological state profile (valence, activation, agency, certainty, relational openness, self-trust, time orientation, integration)
 
 ## GraphRAG Mode
 
@@ -263,6 +271,7 @@ cd embeddings-service && pytest -q # Python unit tests
 - CLI installer (`./setup.sh` / `npx corpus-intelligence`)
 - SSE transport for Claude Desktop (URL-based config)
 - npm publish (`npx corpus-intelligence`)
+- Fine-tuned state classifier (neural model trained on Claude labels, $0 inference)
 
 ### Next
 - Web UI overhaul
