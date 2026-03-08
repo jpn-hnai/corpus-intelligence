@@ -7,9 +7,13 @@
     "corpus-intelligence": "./dist/install.js",
     "corpus": "./dist/ingest.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "prepublishOnly": "npm run build",
     "start:install": "node dist/install.js",
     "start:ingest": "node dist/ingest.js"
   },
